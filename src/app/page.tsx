@@ -1,101 +1,116 @@
-import Image from "next/image";
+"use client";
+
+import ThemeController from "./components/theme-controller";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const handleSubmit = async (formData: FormData) => {
+    const res = await fetch("/api/download", {
+      method: "POST",
+      body: formData,
+    });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+    if (!res.ok) {
+      alert("Erro ao gerar arquivo");
+      return;
+    }
+
+    const blob = await res.blob();
+    const disposition = res.headers.get("Content-Disposition");
+    const fileName = disposition?.match(/filename="?(.+?)"?$/);
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName ? fileName[1] : "arquivo.xlsx";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="flex flex-col items-center p-3 justify-center h-full bg-base-200">
+      <div className="flex w-full justify-end items-end">
+        <ThemeController />
+      </div>
+      <div className="card flex flex-col h-full min-w-2/6 justify-center items-center">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            handleSubmit(formData);
+          }}
+          className="flex flex-col h-auto w-full justify-center p-6 rounded-md bg-base-100"
+        >
+          <div className="card-title gap-0.5 justify-center items-end text-center">
+            <h2 className="font-bold">GeraDOC</h2>
+            <span className="text-xs">by Lucas Silva</span>
+          </div>
+
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Templates</legend>
+            <div className="indicator">
+              <span className="indicator-item status status-success"></span>
+              <div className="px-3 py-2 border max-w-24 rounded-sm text-center text-xs">
+                Template 1
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Nome do sistema</legend>
+            <input
+              type="text"
+              name="systemName"
+              placeholder="System Sistemas"
+              className="input w-full rounded-sm border-2 border-neutral"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          </fieldset>
+
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Nomes dos usuários</legend>
+            <textarea
+              className="textarea w-full rounded-sm max-h-32 border-2 border-neutral"
+              name="names"
+            />
+            <label className="label">
+              (Separado por vírgula. Ex: Lucas Silva, Carlos, Jonas Almeida)
+            </label>
+          </fieldset>
+
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Domínio</legend>
+            <input
+              type="text"
+              name="domain"
+              placeholder="@dominio.com.br"
+              className="input w-full rounded-sm border-2 border-neutral"
+            />
+          </fieldset>
+
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Cor de fundo</legend>
+            <input
+              type="text"
+              name="color"
+              placeholder="#F2F2F2"
+              className="input w-full rounded-sm border-2 border-neutral"
+            />
+          </fieldset>
+
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">Logo</legend>
+            <input
+              type="file"
+              accept="image/png"
+              name="logo"
+              className="file-input w-full rounded-sm"
+            />
+          </fieldset>
+
+          <button type="submit" className="btn btn-primary mt-2 rounded-sm">
+            Gerar planilha
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
