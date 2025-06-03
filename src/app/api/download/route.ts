@@ -1,7 +1,4 @@
 import { NextResponse } from "next/server";
-import { IncomingForm } from "formidable";
-import { Readable } from "stream";
-import { promisify } from "util";
 import createTemplateSheet1 from "./create-template-sheet-1";
 
 export async function POST(req: Request) {
@@ -35,9 +32,9 @@ export async function POST(req: Request) {
         "Content-Disposition": `attachment; filename=${sheetFileName}.xlsx"`,
       },
     });
-  } catch (error) {
+  } catch (e) {
     return NextResponse.json(
-      { error: "Não foi possível gerar o arquivo." },
+      { error: e, message: "Não foi possível gerar o arquivo" },
       { status: 404 }
     );
   }
