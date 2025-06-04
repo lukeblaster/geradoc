@@ -2,7 +2,7 @@ import React from "react";
 
 export default function ThemeController() {
   return (
-    <label className="swap swap-rotate">
+    <label className="swap swap-rotate m-2">
       {/* this hidden checkbox controls the state */}
       <input type="checkbox" className="theme-controller" value="light" />
 
